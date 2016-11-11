@@ -1,4 +1,6 @@
-package org.deadlock.id2209;
+package org.deadlock.id2209.messages;
+
+import org.deadlock.id2209.model.Artifact;
 
 import java.io.Serializable;
 import java.util.Set;

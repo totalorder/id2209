@@ -1,4 +1,4 @@
-package org.deadlock.id2209;
+package org.deadlock.id2209.agents;
 
 
 import jade.core.AID;
@@ -6,6 +6,11 @@ import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.deadlock.id2209.messages.ArtifactsMessage;
+import org.deadlock.id2209.model.Artifact;
+import org.deadlock.id2209.util.Communicator;
+import org.deadlock.id2209.util.DFRegistry;
+import org.deadlock.id2209.util.ReceiveBehavior;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Set;

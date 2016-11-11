@@ -1,4 +1,4 @@
-package org.deadlock.id2209;
+package org.deadlock.id2209.util;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;

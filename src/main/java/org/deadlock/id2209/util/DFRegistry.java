@@ -1,4 +1,4 @@
-package org.deadlock.id2209;
+package org.deadlock.id2209.util;
 
 import jade.core.AID;
 import jade.core.Agent;
