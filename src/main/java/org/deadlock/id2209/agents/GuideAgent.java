@@ -7,13 +7,18 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.deadlock.id2209.messages.ArtifactsMessage;
+import org.deadlock.id2209.messages.RequestTourMessage;
+import org.deadlock.id2209.messages.TourMessage;
 import org.deadlock.id2209.model.Artifact;
+import org.deadlock.id2209.model.Tour;
 import org.deadlock.id2209.util.Communicator;
 import org.deadlock.id2209.util.DFRegistry;
 import org.deadlock.id2209.util.ReceiveBehavior;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class GuideAgent extends Agent {
   private final DFRegistry dfRegistry = new DFRegistry(this);
@@ -22,6 +27,9 @@ public class GuideAgent extends Agent {
   public Set<Artifact> artifacts;
 
   protected void setup() {
+    System.out.println(getLocalName() + " registering guiding: " + getAID());
+    dfRegistry.registerService("guiding");
+
     addBehaviour(receiveBehaviour);
     addBehaviour(askForArtifacts);
   }
@@ -31,7 +39,7 @@ public class GuideAgent extends Agent {
     protected void onTick() {
       if (curator == null) {
         curator = dfRegistry.findService("curation");
-        System.out.println("Curator: " + curator);
+        System.out.println(getLocalName() + " found curator: " + curator);
       }
 
       if (curator != null) {
@@ -52,6 +60,18 @@ public class GuideAgent extends Agent {
       if (object instanceof ArtifactsMessage) {
         final ArtifactsMessage artifactsMessage = (ArtifactsMessage) object;
         artifacts = artifactsMessage.artifacts;
+      } else if (object instanceof RequestTourMessage) {
+        if (artifacts == null) {
+          return;
+        }
+        final RequestTourMessage requestTourMessage = (RequestTourMessage)object;
+
+        final List<Integer> artifactIds = artifacts.stream()
+            .filter(artifact -> artifact.genre.equals(requestTourMessage.profile.interest))
+            .map(artifact -> artifact.id)
+            .collect(Collectors.toList());
+        final Tour tour = new Tour(artifactIds);
+        communicator.send(message.getSender(), TourMessage.create(tour));
       } else {
         throw new NotImplementedException();
       }

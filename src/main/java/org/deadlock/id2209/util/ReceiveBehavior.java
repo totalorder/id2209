@@ -16,16 +16,8 @@ public abstract class ReceiveBehavior extends CyclicBehaviour {
       try {
         final Object contentObject = message.getContentObject();
         if (contentObject instanceof String) {
-          final String contentString = (String)contentObject;
-          System.out.println(" - " +
-              myAgent.getLocalName() + " <- " +
-              contentString);
-
-          onMessageReceived(message, contentString);
+          onMessageReceived(message, (String)contentObject);
         } else {
-          System.out.println(" - " +
-              myAgent.getLocalName() + " <- " +
-              contentObject.toString());
           onObjectReceived(message, contentObject);
         }
       } catch (UnreadableException e) {

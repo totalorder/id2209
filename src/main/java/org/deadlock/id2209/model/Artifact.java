@@ -3,12 +3,12 @@ package org.deadlock.id2209.model;
 import java.io.Serializable;
 
 public class Artifact implements Serializable {
-  final int id;
-  final String name;
-  final String creator;
-  final int created;
-  final String placeOfCreation;
-  final String genre;
+  public final int id;
+  public final String name;
+  public final String creator;
+  public final int created;
+  public final String placeOfCreation;
+  public final String genre;
 
   public Artifact(final int id,
                   final String name,
