@@ -11,6 +11,9 @@ import org.deadlock.id2209.util.DFRegistry;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * List the available services and ask the user to list the properties of a chosen one
+ */
 public class DFLookupAgent extends Agent {
   private final DFRegistry dfRegistry = new DFRegistry(this);
 

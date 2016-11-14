@@ -20,6 +20,13 @@ import org.deadlock.id2209.util.ReceiveBehavior;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
+/**
+ * The profiler agent is responsible for aquiring tours and getting information
+ * about the artifacts in the tour
+ * It handles two types of messages:
+ * TourMessage: Receive a new Tour received from a guide
+ * ArtifactMessage: Print the info about the artifact and move on to the next artifact in the tour
+ */
 public class ProfilerAgent extends Agent {
   private final DFRegistry dfRegistry = new DFRegistry(this);
   private final Communicator communicator = new Communicator(this);
@@ -33,9 +40,12 @@ public class ProfilerAgent extends Agent {
     addBehaviour(findCuratorBehavior);
     addBehaviour(receiveBehaviour);
     addBehaviour(createFindTourBehavior());
-    addBehaviour(lookAtArtifact);
+    addBehaviour(requestArtifactInfo);
   }
 
+  /**
+   * Find a guide and ask for a tour
+   */
   private Behaviour createFindTourBehavior() {
     return new WakerBehaviour(this, 1000) {
       protected void onWake() {
@@ -55,7 +65,10 @@ public class ProfilerAgent extends Agent {
     };
   }
 
-  private final Behaviour lookAtArtifact = new TickerBehaviour(this, 1000) {
+  /**
+   * Ask for information about the next artifact in the tour
+   */
+  private final Behaviour requestArtifactInfo = new TickerBehaviour(this, 1000) {
     @Override
     protected void onTick() {
       if (curator != null && tour != null && !tour.artifactIds.isEmpty()) {
@@ -64,6 +77,9 @@ public class ProfilerAgent extends Agent {
     }
   };
 
+  /**
+   * Find a curator
+   */
   private final Behaviour findCuratorBehavior = new TickerBehaviour(this, 1000) {
     @Override
     protected void onTick() {
@@ -78,11 +94,14 @@ public class ProfilerAgent extends Agent {
     @Override
     public void onObjectReceived(ACLMessage message, Object contentObject) {
       if (contentObject instanceof TourMessage) {
+        // Update the tour with the received one if there isn't already an active tour
         final TourMessage tourMessage = (TourMessage)contentObject;
         if (tour == null) {
           tour = tourMessage.tour;
         }
       } else if (contentObject instanceof ArtifactMessage) {
+        // Print information about the artifact it it's next in the tour
+        // Remove the artifact from the tour and ask for a new tour if there are no more artifacts in the tour anymore
         final ArtifactMessage artifactMessage = (ArtifactMessage)contentObject;
         final Artifact artifact = artifactMessage.artifact;
         if (!tour.artifactIds.isEmpty() && tour.artifactIds.get(0) == artifact.id) {

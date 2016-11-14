@@ -22,6 +22,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * The guide agent is responsible for creating virtual tours based on a profile
+ * It handles two types of messages:
+ * 1. ArtifactsMessage: Update the local list of known artifacts with the received artifacts
+ * 2. RequestTourMessage: Respond with a TourMessage with the artifact ids for the artifacts that have
+ *    the same genre as the profiles' interest.
+ */
 public class GuideAgent extends Agent {
   private final DFRegistry dfRegistry = new DFRegistry(this);
   private final Communicator communicator = new Communicator(this);
@@ -36,6 +43,9 @@ public class GuideAgent extends Agent {
     addBehaviour(askForArtifacts);
   }
 
+  /**
+   * Find the curator and ask it for new artifacts every second
+   */
   private final Behaviour askForArtifacts = new TickerBehaviour(this, 1000) {
     @Override
     protected void onTick() {
@@ -60,9 +70,11 @@ public class GuideAgent extends Agent {
     @Override
     public void onObjectReceived(final ACLMessage message, final Object object) {
       if (object instanceof ArtifactsMessage) {
+        // Update the list of artifacts
         final ArtifactsMessage artifactsMessage = (ArtifactsMessage) object;
         artifacts = artifactsMessage.artifacts;
       } else if (object instanceof RequestTourMessage) {
+        // Return a list of artifact ids with the artifact.genre == profile.interest
         if (artifacts == null) {
           return;
         }

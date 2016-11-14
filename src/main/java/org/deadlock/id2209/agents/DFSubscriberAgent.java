@@ -13,9 +13,11 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 
+/**
+ * Subscribe to a number of services and log any new providers for these services
+ */
 public class DFSubscriberAgent extends Agent {
   protected void setup() {
-
     final String[] services = new String[]{"guiding", "curation"};
     for (final String service : services) {
       subscribeToServices.addSubBehaviour(new OneShotBehaviour() {
@@ -53,8 +55,8 @@ public class DFSubscriberAgent extends Agent {
           final DFAgentDescription[] dfds =
               DFService.decodeNotification(message.getContent());
           for (DFAgentDescription dfd : dfds) {
-            System.out.println("dfsubscriber found new service: " +
-                ((ServiceDescription)dfd.getAllServices().next()).getType());
+            final ServiceDescription sd = (ServiceDescription) dfd.getAllServices().next();
+            System.out.println("dfsubscriber found agent providing service " + sd.getType() + ": " + sd.getName());
           }
         } catch (FIPAException e) {
           e.printStackTrace();
