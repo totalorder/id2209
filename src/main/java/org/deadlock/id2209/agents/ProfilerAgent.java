@@ -4,7 +4,6 @@ package org.deadlock.id2209.agents;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.SimpleBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -20,8 +19,6 @@ import org.deadlock.id2209.util.DFRegistry;
 import org.deadlock.id2209.util.ReceiveBehavior;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.time.Duration;
-import java.time.Instant;
 
 public class ProfilerAgent extends Agent {
   private final DFRegistry dfRegistry = new DFRegistry(this);
@@ -29,7 +26,6 @@ public class ProfilerAgent extends Agent {
   private AID guide;
   private AID curator;
   private Tour tour;
-  private Instant lastAskedForTour = Instant.EPOCH;
 
   private final Profile profile = new Profile(28, "Software Engineer", "male", "arts");
 

@@ -3,7 +3,13 @@ package org.deadlock.id2209.agents;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.domain.FIPAAgentManagement.NotUnderstoodException;
+import jade.domain.FIPAAgentManagement.Property;
+import jade.domain.FIPAAgentManagement.RefuseException;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
+import jade.proto.SimpleAchieveREResponder;
 import org.deadlock.id2209.messages.ArtifactMessage;
 import org.deadlock.id2209.messages.ArtifactsMessage;
 import org.deadlock.id2209.messages.RequestArtifactMessage;
@@ -12,6 +18,7 @@ import org.deadlock.id2209.util.Communicator;
 import org.deadlock.id2209.util.DFRegistry;
 import org.deadlock.id2209.util.ReceiveBehavior;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -50,7 +57,7 @@ public class CuratorAgent extends Agent {
     ));
 
     System.out.println(getLocalName() + " registering curation: " + getAID());
-    dfRegistry.registerService("curation");
+    dfRegistry.registerService("curation", new Property("genre", "arts"), new Property("genre", "sculpture"));
 
     addBehaviour(receiveBehaviour);
   }
@@ -58,6 +65,56 @@ public class CuratorAgent extends Agent {
   private final Behaviour receiveBehaviour = new ReceiveBehavior(this) {
     @Override
     public void onObjectReceived(ACLMessage message, Object contentObject) {
+      addBehaviour(new SimpleAchieveREResponder(myAgent, new MessageTemplate(msg -> {
+        try {
+          return msg.getContentObject() instanceof RequestArtifactMessage;
+        } catch (UnreadableException e) {
+          return false;
+        }
+      })) {
+        protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
+          final RequestArtifactMessage requestArtifactMessage = (RequestArtifactMessage)contentObject;
+          final Optional<Artifact> artifact = artifacts.stream()
+              .filter(item -> item.id == requestArtifactMessage.artifactId)
+              .findFirst();
+          if (artifact.isPresent()) {
+            final ACLMessage message = new ACLMessage(ACLMessage.INFORM);
+            try {
+              message.setContentObject(ArtifactMessage.create(artifact.get()));
+              return message;
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+          return null;
+        }
+      });
+
+      addBehaviour(new SimpleAchieveREResponder(myAgent, new MessageTemplate(msg -> {
+        try {
+          return msg.getContentObject() instanceof RequestArtifactMessage;
+        } catch (UnreadableException e) {
+          return false;
+        }
+      })) {
+        protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
+          final RequestArtifactMessage requestArtifactMessage = (RequestArtifactMessage)contentObject;
+          final Optional<Artifact> artifact = artifacts.stream()
+              .filter(item -> item.id == requestArtifactMessage.artifactId)
+              .findFirst();
+          if (artifact.isPresent()) {
+            final ACLMessage message = new ACLMessage(ACLMessage.INFORM);
+            try {
+              message.setContentObject(ArtifactMessage.create(artifact.get()));
+              return message;
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          }
+          return null;
+        }
+      });
+
       if (contentObject instanceof RequestArtifactMessage) {
         final RequestArtifactMessage requestArtifactMessage = (RequestArtifactMessage)contentObject;
         final Optional<Artifact> artifact = artifacts.stream()

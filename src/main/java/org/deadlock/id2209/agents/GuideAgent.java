@@ -5,6 +5,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.domain.FIPAAgentManagement.Property;
 import jade.lang.acl.ACLMessage;
 import org.deadlock.id2209.messages.ArtifactsMessage;
 import org.deadlock.id2209.messages.RequestTourMessage;
@@ -28,7 +29,7 @@ public class GuideAgent extends Agent {
 
   protected void setup() {
     System.out.println(getLocalName() + " registering guiding: " + getAID());
-    dfRegistry.registerService("guiding");
+    dfRegistry.registerService("guiding", new Property("interest", "genre"));
 
     addBehaviour(receiveBehaviour);
     addBehaviour(askForArtifacts);
