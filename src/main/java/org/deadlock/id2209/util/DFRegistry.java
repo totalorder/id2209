@@ -85,5 +85,6 @@ public class DFRegistry {
     } catch (FIPAException e) {
       throw new RuntimeException(e);
     }
+
   }
 }

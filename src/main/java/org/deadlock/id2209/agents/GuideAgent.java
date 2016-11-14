@@ -4,6 +4,7 @@ package org.deadlock.id2209.agents;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPAAgentManagement.Property;
 import jade.lang.acl.ACLMessage;
