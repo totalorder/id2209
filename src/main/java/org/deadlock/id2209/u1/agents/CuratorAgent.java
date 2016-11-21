@@ -1,4 +1,4 @@
-package org.deadlock.id2209.agents;
+package org.deadlock.id2209.u1.agents;
 
 
 import jade.core.Agent;
@@ -10,10 +10,10 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 import jade.proto.SimpleAchieveREResponder;
-import org.deadlock.id2209.messages.ArtifactMessage;
-import org.deadlock.id2209.messages.ArtifactsMessage;
-import org.deadlock.id2209.messages.RequestArtifactMessage;
-import org.deadlock.id2209.model.Artifact;
+import org.deadlock.id2209.u1.messages.ArtifactMessage;
+import org.deadlock.id2209.u1.messages.ArtifactsMessage;
+import org.deadlock.id2209.u1.messages.RequestArtifactMessage;
+import org.deadlock.id2209.u1.model.Artifact;
 import org.deadlock.id2209.util.Communicator;
 import org.deadlock.id2209.util.DFRegistry;
 import org.deadlock.id2209.util.ReceiveBehavior;

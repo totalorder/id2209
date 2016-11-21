@@ -1,6 +1,6 @@
-package org.deadlock.id2209.messages;
+package org.deadlock.id2209.u1.messages;
 
-import org.deadlock.id2209.model.Profile;
+import org.deadlock.id2209.u1.model.Profile;
 
 import java.io.Serializable;
 

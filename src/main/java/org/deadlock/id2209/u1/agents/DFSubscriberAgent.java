@@ -1,4 +1,4 @@
-package org.deadlock.id2209.agents;
+package org.deadlock.id2209.u1.agents;
 
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;

@@ -1,4 +1,4 @@
-package org.deadlock.id2209.agents;
+package org.deadlock.id2209.u1.agents;
 
 
 import jade.core.AID;
@@ -7,13 +7,13 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
-import org.deadlock.id2209.messages.ArtifactMessage;
-import org.deadlock.id2209.messages.RequestArtifactMessage;
-import org.deadlock.id2209.messages.RequestTourMessage;
-import org.deadlock.id2209.messages.TourMessage;
-import org.deadlock.id2209.model.Artifact;
-import org.deadlock.id2209.model.Profile;
-import org.deadlock.id2209.model.Tour;
+import org.deadlock.id2209.u1.messages.ArtifactMessage;
+import org.deadlock.id2209.u1.messages.RequestArtifactMessage;
+import org.deadlock.id2209.u1.messages.RequestTourMessage;
+import org.deadlock.id2209.u1.messages.TourMessage;
+import org.deadlock.id2209.u1.model.Artifact;
+import org.deadlock.id2209.u1.model.Profile;
+import org.deadlock.id2209.u1.model.Tour;
 import org.deadlock.id2209.util.Communicator;
 import org.deadlock.id2209.util.DFRegistry;
 import org.deadlock.id2209.util.ReceiveBehavior;

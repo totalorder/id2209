@@ -54,6 +54,23 @@ public class DFRegistry {
     return null;
   }
 
+  public List<AID> findServiceProviders(final String service) {
+    final DFAgentDescription dfAgentDescription = new DFAgentDescription();
+    final ServiceDescription serviceDescription = new ServiceDescription();
+    serviceDescription.setType(service);
+    dfAgentDescription.addServices(serviceDescription);
+    try {
+      final DFAgentDescription[] dfAgentDescriptions = DFService.search(agent, dfAgentDescription);
+      final List<AID> providers = new LinkedList<>();
+      for (final DFAgentDescription dfad : dfAgentDescriptions) {
+        providers.add(dfad.getName());
+      }
+      return providers;
+    } catch (FIPAException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public DFAgentDescription findServiceDescription(final String service) {
     final DFAgentDescription dfAgentDescription = new DFAgentDescription();
     final ServiceDescription serviceDescription = new ServiceDescription();

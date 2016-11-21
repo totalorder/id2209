@@ -1,18 +1,17 @@
-package org.deadlock.id2209.agents;
+package org.deadlock.id2209.u1.agents;
 
 
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.FIPAAgentManagement.Property;
 import jade.lang.acl.ACLMessage;
-import org.deadlock.id2209.messages.ArtifactsMessage;
-import org.deadlock.id2209.messages.RequestTourMessage;
-import org.deadlock.id2209.messages.TourMessage;
-import org.deadlock.id2209.model.Artifact;
-import org.deadlock.id2209.model.Tour;
+import org.deadlock.id2209.u1.messages.ArtifactsMessage;
+import org.deadlock.id2209.u1.messages.RequestTourMessage;
+import org.deadlock.id2209.u1.messages.TourMessage;
+import org.deadlock.id2209.u1.model.Artifact;
+import org.deadlock.id2209.u1.model.Tour;
 import org.deadlock.id2209.util.Communicator;
 import org.deadlock.id2209.util.DFRegistry;
 import org.deadlock.id2209.util.ReceiveBehavior;

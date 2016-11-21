@@ -1,4 +1,4 @@
-package org.deadlock.id2209.messages;
+package org.deadlock.id2209.u1.messages;
 
 import java.io.Serializable;
 

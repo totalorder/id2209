@@ -1,4 +1,4 @@
-package org.deadlock.id2209.model;
+package org.deadlock.id2209.u1.model;
 
 import java.io.Serializable;
 
