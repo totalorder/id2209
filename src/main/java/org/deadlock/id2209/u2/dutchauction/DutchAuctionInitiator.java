@@ -62,11 +62,6 @@ public class DutchAuctionInitiator extends FSMBehaviour {
     this.registerTransition("respond_to_proposals", "end", 1);
   }
 
-  @Override
-  protected void handleStateEntered(Behaviour state) {
-    state.reset();
-  }
-
   /**
    * Send an INFORM message to all participants to tell them that an auction is starting
    * The itemId is passed as content, signifying which item is being auctioned
@@ -74,6 +69,7 @@ public class DutchAuctionInitiator extends FSMBehaviour {
   private final Behaviour start = new OneShotBehaviour(myAgent) {
     @Override
     public void action() {
+      System.out.println(String.format("%s: Starting auction for item %s", myAgent.getLocalName(), itemId));
       participants.stream().forEach(participant -> {
         final ACLMessage message = new ACLMessage(ACLMessage.INFORM);
         message.addReceiver(participant);
@@ -83,8 +79,6 @@ public class DutchAuctionInitiator extends FSMBehaviour {
         // Item being auctioned
         message.setContent(Integer.toString(itemId));
         myAgent.send(message);
-
-        System.out.println(String.format("%s: Starting auction for item %s", myAgent.getLocalName(), itemId));
       });
     }
   };
@@ -189,4 +183,9 @@ public class DutchAuctionInitiator extends FSMBehaviour {
       }
     }
   };
+
+  @Override
+  protected void handleStateEntered(Behaviour state) {
+    state.reset();
+  }
 }
