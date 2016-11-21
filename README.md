@@ -1,31 +1,4 @@
-# Installing
-## Tools required
-```
-sudo apt-get install git maven
-```
- 
-## Getting the code
-```
-git clone https://github.com/totalorder/id2209
-```
-
-## Getting dependencies
-```
-cd id2209/ 
-./install_jade.sh
-```
-
-## Compiling
-```
-mvn package
-```
-
-# Running
-## Starting the system
-```
-./run.sh
-```
-## Starting lookup agent
-```
-./run_dflookup.sh
-```
+# Info
+Look at the following files for more info:
+u1/README.md
+u2/README.md

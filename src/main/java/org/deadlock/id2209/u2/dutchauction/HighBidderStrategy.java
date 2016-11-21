@@ -1,5 +1,8 @@
 package org.deadlock.id2209.u2.dutchauction;
 
+/**
+ * Buy whenever the price is 90% or lower than the starting price
+ */
 public class HighBidderStrategy implements BiddingStrategy {
 
   @Override

@@ -7,8 +7,7 @@ import jade.core.behaviours.FSMBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
-import org.deadlock.id2209.util.ReceiveAllReplys;
-import org.deadlock.id2209.util.ReceiveAllReplysAfterTimeout;
+import org.deadlock.id2209.util.ReceiveAllReplies;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +15,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Implement a dutch auction seller, with a given number of participants, and a start and stop price.
+ * Logs whenever an auction is started, an item is sold or when there were no bidders at the stop price.
+ * Completes when the item is sold or there were no bids at the stop price.
+ */
 public class DutchAuctionInitiator extends FSMBehaviour {
   private final List<AID> participants;
   private final int itemId;
@@ -42,7 +46,8 @@ public class DutchAuctionInitiator extends FSMBehaviour {
         .limit(participants.size())
         .collect(Collectors.toList());
     this.conversationId = UUID.randomUUID().toString();
-    receiveProposals = new ReceiveAllReplys(
+
+    receiveProposals = new ReceiveAllReplies(
         myAgent, FIPANames.InteractionProtocol.FIPA_DUTCH_AUCTION, conversationId, cfpReplyWithIds);
 
     this.registerFirstState(start, "start");
@@ -62,15 +67,21 @@ public class DutchAuctionInitiator extends FSMBehaviour {
     state.reset();
   }
 
+  /**
+   * Send an INFORM message to all participants to tell them that an auction is starting
+   * The itemId is passed as content, signifying which item is being auctioned
+   */
   private final Behaviour start = new OneShotBehaviour(myAgent) {
     @Override
     public void action() {
       participants.stream().forEach(participant -> {
         final ACLMessage message = new ACLMessage(ACLMessage.INFORM);
         message.addReceiver(participant);
-        message.setContent(Integer.toString(itemId));
         message.setProtocol(FIPANames.InteractionProtocol.FIPA_DUTCH_AUCTION);
         message.setConversationId(conversationId);
+
+        // Item being auctioned
+        message.setContent(Integer.toString(itemId));
         myAgent.send(message);
 
         System.out.println(String.format("%s: Starting auction for item %s", myAgent.getLocalName(), itemId));
@@ -78,12 +89,12 @@ public class DutchAuctionInitiator extends FSMBehaviour {
     }
   };
 
+  /**
+   * Send CFP (call for proposal) to all participants
+   */
   private final Behaviour sendCfp = new OneShotBehaviour(myAgent) {
     @Override
     public void action() {
-//      System.out.println(String.format("%s: Sending cfp for item %s for price %s (stops at %s) to %s participants.",
-//          myAgent.getLocalName(), itemId, currentPrice, stopPrice, participants.size()));
-
       int index = 0;
       for(final AID participant : participants) {
           final ACLMessage message = new ACLMessage(ACLMessage.CFP);
@@ -97,18 +108,30 @@ public class DutchAuctionInitiator extends FSMBehaviour {
     }
   };
 
-  private final ReceiveAllReplys receiveProposals;
+  // Receive replies to the CFP from all participants
+  private final ReceiveAllReplies receiveProposals;
 
+  /**
+   * Respond to proposals, or lower the price
+   *
+   * If >0 proposals have been received: Answer ACCEPT_PROPOSAL to the first one, and REJECT_PROPOSAL to the rest. Log
+   * the item as being sold, then complete.
+   *
+   * If 0 proposals have been received: Decrement the price
+   * If 0 proposals have been received and we are on the stop price: Log failure and complete
+   */
   private final Behaviour respondToProposals = new OneShotBehaviour() {
     public int onend = 0;
 
     @Override
     public void action() {
+      // Find the first proposal, if any
       final Optional<ACLMessage> firstProposal = receiveProposals.getResponses().stream()
           .filter(message -> message.getPerformative() == ACLMessage.PROPOSE)
           .findFirst();
       
       if (firstProposal.isPresent()) {
+        // Reply ACCEPT_PROPOSAL to winner
         final ACLMessage proposalMessage = firstProposal.get();
         onend = 1;
         soldTo = proposalMessage.getSender();
@@ -118,8 +141,10 @@ public class DutchAuctionInitiator extends FSMBehaviour {
         myAgent.send(reply);
       }
 
+      // Decrement the price
       currentPrice = Math.max(currentPrice - priceDecrement, stopPrice);
 
+      // Answer REJECT_PROPOSAL to all losers
       receiveProposals.getResponses().stream()
           .filter(message -> !firstProposal.isPresent() || message != firstProposal.get())
           .forEach(message -> {
@@ -129,6 +154,7 @@ public class DutchAuctionInitiator extends FSMBehaviour {
             myAgent.send(reply);
           });
 
+      // Complete if we reached stop price with no bidders
       if (currentPrice == stopPrice && !firstProposal.isPresent()) {
         onend = 1;
       }
@@ -140,6 +166,9 @@ public class DutchAuctionInitiator extends FSMBehaviour {
     }
   };
 
+  /**
+   * Tell all participants the auction has ended
+   */
   public Behaviour end = new OneShotBehaviour(myAgent) {
     @Override
     public void action() {

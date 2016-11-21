@@ -1,5 +1,10 @@
 package org.deadlock.id2209.u2;
 
+/**
+ * Track the current holdings of an actor
+ * Funds can be reserved before placing a bid, to make sure that no concurrent bidding exceeds the available funds
+ * When a bid is won or lost, the purchase is confirmed, or the reserved amount if freed, respectively
+ */
 public class Holdings {
   private int funds;
   private int reserved = 0;
@@ -9,6 +14,10 @@ public class Holdings {
     this.funds = funds;
   }
 
+  /**
+   * Reserve amount if possible.
+   * Returns true if funds were reserved, false if not enough capital is available
+   */
   public boolean reserve(final int amount) {
     if (funds - (reserved + amount) >= 0) {
       reserved = reserved + amount;
@@ -18,14 +27,21 @@ public class Holdings {
     }
   }
 
+  /**
+   * Release previously reserved capital so that can be used in another transaction
+   */
   public void release(final int amount) {
     reserved = reserved - amount;
     if (reserved < 0) {
-      throw new RuntimeException("Invalid free!");
+      throw new RuntimeException("Invalid release!");
     }
   }
 
-  public void buy(final int amount) {
+  /**
+   * Confirm a transaction by releasing the reserved funds, and withdrawing then from the account
+   * Increments the number of purchases by one
+   */
+  public void confirm(final int amount) {
     release(amount);
     funds = funds - amount;
     purchases++;

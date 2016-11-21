@@ -3,7 +3,6 @@ package org.deadlock.id2209.u2.dutchauction;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
@@ -13,6 +12,9 @@ import jade.lang.acl.MessageTemplate;
 import org.deadlock.id2209.u2.Holdings;
 import org.deadlock.id2209.util.UnknownConversationIdExpression;
 
+/**
+ * Implement a dutch auction buyer, with a specified buying strategy and available holdings
+ */
 public class DutchAuctionResponder extends CyclicBehaviour {
 
   private final BiddingStrategy strategy;
@@ -30,6 +32,9 @@ public class DutchAuctionResponder extends CyclicBehaviour {
     System.out.println(String.format("%s: %s", myAgent.getLocalName(), holdings.getDescription()));
   }
 
+  /**
+   * Receive INFORM messages with unknown conversation ids, and track a separate auction for each of them
+   */
   @Override
   public void action() {
     final MessageTemplate messageTemplate = MessageTemplate.and(
@@ -44,6 +49,9 @@ public class DutchAuctionResponder extends CyclicBehaviour {
     }
   }
 
+  /**
+   * Track a specific auction, using strategy to decide when to bid
+   */
   class DutchAuctionBehavior extends ParallelBehaviour {
     private final String conversationId;
     private final String itemId;
@@ -63,8 +71,6 @@ public class DutchAuctionResponder extends CyclicBehaviour {
       this.conversationId = message.getConversationId();
       this.itemId = message.getContent();
 
-
-      System.out.println(String.format("%s: Discovered new auction for item %s", myAgent.getLocalName(), itemId));
       printHoldings();
       bid.addSubBehaviour(receiveCfp);
       bid.addSubBehaviour(receiveProposalResponse);
@@ -72,9 +78,15 @@ public class DutchAuctionResponder extends CyclicBehaviour {
       addSubBehaviour(receiveAuctionEnded);
     }
 
+    /**
+     * Receive CFPs (call for proposals) and maybe send proposal, then wait for the answer to proposal if sent
+     */
     private SequentialBehaviour bid = new SequentialBehaviour(myAgent) {
     };
 
+    /**
+     * Receive CFPs (call for proposals) and maybe send proposal depending on the decision of the strategy
+     */
     private Behaviour receiveCfp = new SimpleBehaviour() {
       boolean done = false;
       @Override
@@ -89,23 +101,28 @@ public class DutchAuctionResponder extends CyclicBehaviour {
         if (message != null) {
           final int currentPrice = Integer.parseInt(message.getContent());
 
+          // Record the starting price on the first round
           if (round == 1) {
             startPrice = currentPrice;
           }
 
           round++;
 
+          // Ask the bidding strategy whether to buy or not
           final boolean buy = strategy.buy(round, startPrice, currentPrice);
+
+          // If the strategy decides to buy, try to reserve that amount and place a bid
           if (buy && holdings.reserve(currentPrice)) {
             System.out.println(String.format("%s: Bid on item %s at %s", myAgent.getLocalName(), itemId, currentPrice));
             printHoldings();
+            // Remember the amount reserved to confirm/release depending on if the bid is a win
             reservedAmount = currentPrice;
+
+            // Send a PROPOSE to make a bid at the current price
             final ACLMessage reply = message.createReply();
             reply.setPerformative(ACLMessage.PROPOSE);
             myAgent.send(reply);
             done = true;
-          } else {
-//            System.out.println(String.format("%s: Dit not bid on item %s at %s", myAgent.getLocalName(), itemId, currentPrice));
           }
         } else {
           block();
@@ -134,10 +151,12 @@ public class DutchAuctionResponder extends CyclicBehaviour {
         if (message != null) {
           done = true;
           if (message.getPerformative() == ACLMessage.ACCEPT_PROPOSAL) {
-            holdings.buy(reservedAmount);
+            // Confirm the purchase if the bid is won
+            holdings.confirm(reservedAmount);
             System.out.println(String.format("%s: Won bid on item %s at %s", myAgent.getLocalName(), itemId, reservedAmount));
             printHoldings();
           } else {
+            // Release the reserved amount if the bid is lost
             holdings.release(reservedAmount);
             System.out.println(String.format("%s: Lost bid on item %s at %s", myAgent.getLocalName(), itemId, reservedAmount));
             printHoldings();
@@ -153,6 +172,9 @@ public class DutchAuctionResponder extends CyclicBehaviour {
       }
     };
 
+    /**
+     * Receive an INFORM with content auction_ended, which logs a message and completes
+     */
     private Behaviour receiveAuctionEnded = new SimpleBehaviour(myAgent) {
       boolean done = false;
 

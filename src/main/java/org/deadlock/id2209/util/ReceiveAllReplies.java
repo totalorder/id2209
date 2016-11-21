@@ -1,7 +1,6 @@
 package org.deadlock.id2209.util;
 
 import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.ParallelBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -12,16 +11,20 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ReceiveAllReplys extends ParallelBehaviour {
+/**
+ * Receive replies for all InReplyTo-ids specified.
+ * Completes after one second or when all replies are received, whichever happens first
+ */
+public class ReceiveAllReplies extends ParallelBehaviour {
   private final List<ACLMessage> responses = new LinkedList<>();
   private final String protocol;
   private final String conversationId;
   private final List<String> replyToIds;
 
-  public ReceiveAllReplys(final Agent agent,
-                          final String protocol,
-                          final String conversationId,
-                          final List<String> replyToIds) {
+  public ReceiveAllReplies(final Agent agent,
+                           final String protocol,
+                           final String conversationId,
+                           final List<String> replyToIds) {
     super(agent, ParallelBehaviour.WHEN_ALL);
 
     this.protocol = protocol;
