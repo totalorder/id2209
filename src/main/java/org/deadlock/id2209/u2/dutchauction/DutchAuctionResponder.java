@@ -17,11 +17,13 @@ public class DutchAuctionResponder extends CyclicBehaviour {
 
   private final BiddingStrategy strategy;
   private final Holdings holdings;
+  private final MessageTemplate unknownConversationTemplate;
 
   public DutchAuctionResponder(final Agent agent, final BiddingStrategy strategy, final Holdings holdings) {
     super(agent);
     this.strategy = strategy;
     this.holdings = holdings;
+    this.unknownConversationTemplate = UnknownConversationIdExpression.createTemplate();
   }
 
   public void printHoldings() {
@@ -32,7 +34,7 @@ public class DutchAuctionResponder extends CyclicBehaviour {
   public void action() {
     final MessageTemplate messageTemplate = MessageTemplate.and(
         MessageTemplate.and(MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_DUTCH_AUCTION),
-            MessageTemplate.MatchPerformative(ACLMessage.INFORM)), UnknownConversationIdExpression.createTemplate());
+            MessageTemplate.MatchPerformative(ACLMessage.INFORM)), unknownConversationTemplate);
 
     final ACLMessage message = myAgent.receive(messageTemplate);
     if (message != null) {
@@ -55,7 +57,7 @@ public class DutchAuctionResponder extends CyclicBehaviour {
                                 final ACLMessage message,
                                 final BiddingStrategy strategy,
                                 final Holdings holdings) {
-      super(agent, ParallelBehaviour.WHEN_ANY);
+      super(agent, ParallelBehaviour.WHEN_ALL);
       this.strategy = strategy;
       this.holdings = holdings;
       this.conversationId = message.getConversationId();
@@ -159,14 +161,14 @@ public class DutchAuctionResponder extends CyclicBehaviour {
         final MessageTemplate messageTemplate = MessageTemplate.and(MessageTemplate.and(
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_DUTCH_AUCTION),
                 MessageTemplate.MatchConversationId(conversationId)),
-            MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL),
+            MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.INFORM),
                 MessageTemplate.MatchContent("auction_ended"))
         );
-
 
         final ACLMessage message = myAgent.receive(messageTemplate);
         if (message != null) {
           done = true;
+          System.out.println(String.format("%s: Auction for item %s ended", myAgent.getLocalName(), itemId));
         } else {
           block();
         }

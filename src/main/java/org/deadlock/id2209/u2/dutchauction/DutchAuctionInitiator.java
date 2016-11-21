@@ -81,8 +81,8 @@ public class DutchAuctionInitiator extends FSMBehaviour {
   private final Behaviour sendCfp = new OneShotBehaviour(myAgent) {
     @Override
     public void action() {
-      System.out.println(String.format("%s: Sending cfp for item %s for price %s (stops at %s) to %s participants.",
-          myAgent.getLocalName(), itemId, currentPrice, stopPrice, participants.size()));
+//      System.out.println(String.format("%s: Sending cfp for item %s for price %s (stops at %s) to %s participants.",
+//          myAgent.getLocalName(), itemId, currentPrice, stopPrice, participants.size()));
 
       int index = 0;
       for(final AID participant : participants) {
@@ -148,6 +148,7 @@ public class DutchAuctionInitiator extends FSMBehaviour {
             final ACLMessage auctionEnded = new ACLMessage(ACLMessage.INFORM);
             auctionEnded.addReceiver(participant);
             auctionEnded.setProtocol(FIPANames.InteractionProtocol.FIPA_DUTCH_AUCTION);
+            auctionEnded.setConversationId(conversationId);
             auctionEnded.setContent("auction_ended");
             myAgent.send(auctionEnded);
           });
@@ -156,7 +157,6 @@ public class DutchAuctionInitiator extends FSMBehaviour {
         System.out.println(String.format("%s: Auction for item %s ended. Sold for %s to %s", myAgent.getLocalName(), itemId, currentPrice, soldTo.getLocalName()));
       } else {
         System.out.println(String.format("%s: Auction for item %s ended. Not sold at stop price %s", myAgent.getLocalName(), itemId, currentPrice));
-        System.out.println("Auction for item " + itemId + " ended. Not sold at stop price " + currentPrice);
       }
     }
   };
