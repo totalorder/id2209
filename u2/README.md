@@ -23,5 +23,5 @@ mvn package
 # Running
 ## Starting the system
 ```
-./u1/run.sh
+./u2/run.sh
 ```
