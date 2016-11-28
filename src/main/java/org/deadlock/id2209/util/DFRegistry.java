@@ -8,11 +8,12 @@ import jade.domain.FIPAAgentManagement.Property;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DFRegistry {
+public class DFRegistry implements Serializable {
   private final Agent agent;
 
   public DFRegistry(final Agent agent) {
